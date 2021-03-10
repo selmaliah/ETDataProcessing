@@ -30,7 +30,7 @@ public class Parser {
 
     public static void writeToCSV(List<List<Trial>> subjects, List<String> trialAttributes, List<String> headers, String fileName, List<String> firstColumn) throws IOException {
         FileWriter writer = new FileWriter(fileName);
-        writer.write(headers.stream().collect(Collectors.joining(",")));
+        writer.write(String.join(",", headers));
         subjects.forEach(list -> {
             try {
                 writer.write(System.lineSeparator());
@@ -44,13 +44,13 @@ public class Parser {
         writer.close();
     }
 
-    public static void writeInvalid(List<List<Trial>> invalids, String fileName, String cleanByAttribute, List<String> cleanAttributes, List<String> cleanByAreas, List<String> trialAttributes) throws IOException {
-        OptionalInt longest = invalids
+    public static void writeInvalid(List<List<Trial>> invalids, String fileName, List<String> cleanAttributes, List<String> cleanByAreas, List<String> trialAttributes) throws IOException {
+        int longest = invalids
                 .stream()
                 .mapToInt(List::size).boxed()
                 .sorted(Comparator.reverseOrder())
                 .mapToInt(i -> i)
-                .findFirst();
+                .findFirst().orElse(0);
         FileWriter writer = new FileWriter(fileName);
         writer.write("subject,total_failures");
         writer.write(",");
@@ -63,7 +63,7 @@ public class Parser {
                 .collect(Collectors.toList());
         writer.write(
                 IntStream
-                        .range(0, longest.getAsInt())
+                        .range(0, longest)
                         .boxed()
                         .map(i -> attributesToPrint
                                 .stream()
@@ -119,11 +119,11 @@ public class Parser {
         FileWriter writer = new FileWriter(fileName);
         List<String> types = Utils.getAttributeTypes(subjects, calcAverageByAttribute);
         skippedAttributes.forEach(types::remove);
-        String headers = "Subject";
+        StringBuilder headers = new StringBuilder("Subject");
         for (String type : types) {
-            headers = headers + "," + calcAverageAttributes.stream().map(att -> type + "_" + att).collect(Collectors.joining(","));
+            headers.append(",").append(calcAverageAttributes.stream().map(att -> type + "_" + att).collect(Collectors.joining(",")));
         }
-        writer.write(headers);
+        writer.write(headers.toString());
 
         subjects.forEach(list -> {
             try {

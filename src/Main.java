@@ -255,7 +255,7 @@ public class Main {
 
         cleanAttributes.add(cleanByAttribute);
 
-        Parser.writeInvalid(invalidTrials, outputFolder + "/invalid.csv", cleanByAttribute, cleanAttributes, cleanByAreas, trialAttributes);
+        Parser.writeInvalid(invalidTrials, outputFolder + "/invalid.csv", cleanAttributes, cleanByAreas, trialAttributes);
         List<String> finalCleanAttributes = new ArrayList<>(cleanAttributes);
         invalidTrials
                 .forEach(trials ->
