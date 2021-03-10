@@ -44,6 +44,7 @@ public class Main {
             Parser.writeTypeSummary(subjects.get(0), fileRows.get(0), outputFolder + "/typesSummary.csv");
         } catch (Exception e) {
             System.out.println("Exit");
+            e.printStackTrace();
             return;
         }
 
@@ -87,7 +88,20 @@ public class Main {
             }
             System.out.println("You choose " + calcAverageAttributes.toString());
 
-            Parser.writeAverage(subjects, calcAverageByAttribute, calcAverageAttributes, outputFolder + "/average.csv", prefixList);
+            List<String> attributeTypes = Utils.getAttributeTypes(subjects, calcAverageByAttribute);
+            System.out.println("Are there attributes that should be skipped and not be count in averages calculation?");
+            printOptions(attributeTypes);
+            System.out.println("Enter a list of the attributes numbers to be skipped. For example: 2, 4-6");
+            List<String> skippedAreas;
+            try{
+                skippedAreas = parseOptionsFromString(in.nextLine(), attributeTypes);
+            } catch (Exception e){
+                System.out.println("Try again. Bye Bye.");
+                throw e;
+            }
+            System.out.println("You choose " + skippedAreas.toString());
+
+            Parser.writeAverage(subjects, calcAverageByAttribute, calcAverageAttributes, outputFolder + "/average.csv", prefixList, skippedAreas);
         }
     }
 
@@ -239,9 +253,10 @@ public class Main {
                         .collect(Collectors.toList());
         System.out.println("Total invalid trials: " + invalidTrials.stream().mapToInt(List::size).sum());
 
+        cleanAttributes.add(cleanByAttribute);
+
         Parser.writeInvalid(invalidTrials, outputFolder + "/invalid.csv", cleanByAttribute, cleanAttributes, cleanByAreas, trialAttributes);
-        //        printTrials(invalidTrials);
-        List<String> finalCleanAttributes = cleanAttributes;
+        List<String> finalCleanAttributes = new ArrayList<>(cleanAttributes);
         invalidTrials
                 .forEach(trials ->
                     trials.forEach(invalidTrial ->

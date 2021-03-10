@@ -56,8 +56,8 @@ public class Trial {
         return trialAttributes.stream().map(this::getAttribute).collect(Collectors.joining(","));
     }
 
-    public String invalidToString(List<String> cleanAttributes, String cleanByAttribute) {
-        List<String> keysToString = attributes.keySet().stream().filter(att -> !cleanAttributes.contains(att) || cleanByAttribute.toLowerCase().equals(att)).collect(Collectors.toList());
+    public String invalidToString(List<String> cleanAttributes) {
+        List<String> keysToString = attributes.keySet().stream().filter(att -> !cleanAttributes.contains(att)).collect(Collectors.toList());
         return keysToString.stream().sorted().map(k -> attributes.get(k)).collect(Collectors.joining(","));
     }
 

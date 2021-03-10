@@ -19,7 +19,7 @@ public class Parser {
 
         while(inputStream.hasNext()){
             String line= inputStream.next();
-            String[] values = line.split(",");
+            String[] values = line.replaceAll("\\s", "").split(",");
             // this adds the currently parsed line to the 2-dimensional string array
             lines.add(Arrays.asList(values));
         }
@@ -58,7 +58,7 @@ public class Parser {
         writer.write(",");
         List<String> attributesToPrint = trialAttributes
                 .stream()
-                .filter(att -> !cleanAttributes.contains(att) || cleanByAttribute.equals(att))
+                .filter(att -> !cleanAttributes.contains(att))
                 .sorted()
                 .collect(Collectors.toList());
         writer.write(
@@ -90,7 +90,7 @@ public class Parser {
                 writer.write(
                         list
                                 .stream()
-                                .map(t -> t.invalidToString(cleanAttributes, cleanByAttribute))
+                                .map(t -> t.invalidToString(cleanAttributes))
                                 .collect(Collectors.joining(",")));
                 writer.flush();
             } catch (IOException e) {
@@ -115,13 +115,13 @@ public class Parser {
         writer.close();
     }
 
-    public static void writeAverage(List<List<Trial>> subjects, String calcAverageByAttribute, List<String> calcAverageAttributes, String fileName, List<String> firstColumn) throws IOException {
+    public static void writeAverage(List<List<Trial>> subjects, String calcAverageByAttribute, List<String> calcAverageAttributes, String fileName, List<String> firstColumn, List<String> skippedAttributes) throws IOException {
         FileWriter writer = new FileWriter(fileName);
         List<String> types = Utils.getAttributeTypes(subjects, calcAverageByAttribute);
-        String titles = calcAverageByAttribute + "," + String.join(",", calcAverageAttributes);
+        skippedAttributes.forEach(types::remove);
         String headers = "Subject";
-        for (int i = 0; i < types.size(); i++) {
-            headers = headers + "," + titles;
+        for (String type : types) {
+            headers = headers + "," + calcAverageAttributes.stream().map(att -> type + "_" + att).collect(Collectors.joining(","));
         }
         writer.write(headers);
 
@@ -136,9 +136,7 @@ public class Parser {
                         .filter(trial -> type.equalsIgnoreCase(trial.getAttribute(calcAverageByAttribute)))
                         .collect(Collectors.toList());
                 writer.write(",");
-                writer.write(trialsByType.get(0).getAttribute(calcAverageByAttribute));
-                writer.write(",");
-                List<Trial> finalTrialsByType = trialsByType;
+                List<Trial> finalTrialsByType = new ArrayList<>(trialsByType);
                 writer.write(
                         calcAverageAttributes
                                 .stream()
