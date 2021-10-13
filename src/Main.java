@@ -193,7 +193,7 @@ public class Main {
 
                 trialsStimulusMap.put(new Pair<>(trial.subjectIndex, trial.getStimulus()), trial);
 
-                columnNumber += 9;
+                columnNumber += trialAttributes.size();
                 index++;
             }
             lineNumber++;
