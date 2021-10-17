@@ -16,7 +16,7 @@ public class Parser {
         Scanner inputStream;
 
         inputStream = new Scanner(file);
-
+        inputStream.useDelimiter("\n");
         while(inputStream.hasNext()){
             String line= inputStream.next();
             String[] values = line.replaceAll("\\s", "").split(",");
@@ -127,39 +127,42 @@ public class Parser {
 
         subjects.forEach(list -> {
             try {
-            writer.write(System.lineSeparator());
-            writer.write(firstColumn.get(subjects.indexOf(list)));
-            List<Trial> trialsByType;
-            for (String type : types) {
-                trialsByType = list
-                        .stream()
-                        .filter(trial -> type.equalsIgnoreCase(trial.getAttribute(calcAverageByAttribute)))
-                        .collect(Collectors.toList());
-                writer.write(",");
-                List<Trial> finalTrialsByType = new ArrayList<>(trialsByType);
-                writer.write(
-                        calcAverageAttributes
-                                .stream()
-                                .map(att ->
-                                        finalTrialsByType
-                                                .stream()
-                                                .filter(Trial::isNotEmpty)
-                                                .map(trial -> trial.getAttribute(att))
-//                                                .filter(str -> !str.equals(""))
-                                                .mapToDouble(Double::valueOf)
-                                                .average()
-                                                .orElse(-1))
-                                .map(Object::toString)
-                                .collect(Collectors.joining(",")));
-                writer.flush();
-            }
+                writer.write(System.lineSeparator());
+                writer.write(firstColumn.get(subjects.indexOf(list)));
+                List<Trial> trialsByType;
+                for (String type : types) {
+                    trialsByType = list
+                            .stream()
+                            .filter(trial -> type.equalsIgnoreCase(trial.getAttribute(calcAverageByAttribute)))
+                            .collect(Collectors.toList());
+                    writer.write(",");
+                    List<Trial> finalTrialsByType = new ArrayList<>(trialsByType);
+                    writer.write(
+                            calcAverageAttributes
+                                    .stream()
+                                    .map(att ->
+                                            finalTrialsByType
+                                                    .stream()
+                                                    .filter(Trial::isNotEmpty)
+                                                    .map(trial -> trial.getAttribute(att))
+    //                                                .filter(str -> !str.equals(""))
+                                                    .mapToDouble(Double::valueOf)
+                                                    .average()
+                                                    .orElse(-1))
+                                    .map(Object::toString)
+                                    .collect(Collectors.joining(",")));
+                    writer.flush();
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("One of the values is not a number.\nPlease make sure all values for averages are numbers.");
+                System.err.println(e.getMessage().contains("For input string:") ? "Look for " + e.getMessage().substring(e.getMessage().indexOf(":") + 2) + " which is not a number" : e.getMessage());
+                throw e;
             } catch (IOException e) {
                 e.printStackTrace();
+                System.exit(1);
             }
-
         });
         writer.close();
-
     }
 
     public static void writeTotalNumberPerStimuli(List<List<Trial>> subjects, List<String> areas, String fileName) throws IOException {

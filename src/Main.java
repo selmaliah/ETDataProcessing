@@ -21,7 +21,7 @@ public class Main {
         List<String> prefixList;
         try {
             // Get input file
-            fileRows = parseInputDate(in);
+            fileRows = parseInputData(in);
             // Get output directory
             outputFolder = getOutputFolder(in);
             sleep(1000);
@@ -64,10 +64,7 @@ public class Main {
     private static void calculateAverageHandler(Scanner in, String outputFolder, List<String> trialAttributes, List<List<Trial>> subjects, List<String> prefixList) throws Exception {
         System.out.println("Do you want to calculate averages? (Y/N)");
         String shouldCalcAverageStr = in.nextLine();
-        boolean shouldCalcAverage = false;
-        if (shouldCalcAverageStr.toLowerCase().equals("y")){
-            shouldCalcAverage = true;
-        }
+        boolean shouldCalcAverage = shouldCalcAverageStr.equalsIgnoreCase("y");
         List<String> calcAverageAttributes;
         String calcAverageByAttribute;
         if (shouldCalcAverage){
@@ -123,10 +120,7 @@ public class Main {
     private static void cleanDataHandler(Scanner in, String outputFolder, List<String> trialAttributes, List<List<Trial>> subjects, MultiValuedMap<Pair<Integer, String>, Trial> trialsStimulusMap) throws Exception {
         System.out.println("Do you want to clean the data? (Y/N)");
         String shouldCleanStr = in.nextLine();
-        boolean shouldClean = false;
-        if (shouldCleanStr.toLowerCase().equals("y")){
-            shouldClean = true;
-        }
+        boolean shouldClean = shouldCleanStr.equalsIgnoreCase("y");
         if (shouldClean){
             cleanData(in, outputFolder, trialAttributes, subjects, trialsStimulusMap);
         }
@@ -145,7 +139,7 @@ public class Main {
         return outputFolder;
     }
 
-    private static List<List<String>> parseInputDate(Scanner in) throws FileNotFoundException {
+    private static List<List<String>> parseInputData(Scanner in) throws FileNotFoundException {
         String fileName = getInputFile(in);
         List<List<String>> fileRows;
         try {
