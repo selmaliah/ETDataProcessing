@@ -200,7 +200,7 @@ public class Main {
         String cleanByAttribute;
         List<String> cleanByAreas;
         int cleanThreshold;
-        System.out.println("Select the metric by which you'll clean the data:");
+        System.out.println("Select the metric by which you'll clean the data (metric values must be numbers):");
         printOptions(trialAttributes);
         System.out.println("Enter the metric number");
         try{

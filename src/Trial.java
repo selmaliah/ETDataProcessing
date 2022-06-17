@@ -36,9 +36,16 @@ public class Trial {
     }
 
 
-    public boolean underThreshold(int threshold, String cleanByAttribute) {
+    public boolean underThreshold(int threshold, String cleanByAttribute) throws NumberFormatException {
         if (attributes.get(cleanByAttribute).equals("")) return true;
-        return Double.parseDouble(attributes.get(cleanByAttribute)) <= threshold;
+        try {
+            return Double.parseDouble(attributes.get(cleanByAttribute)) <= threshold;
+        } catch (NumberFormatException e) {
+            System.err.println("The metric by which you chose to clean the data is not a number.");
+            System.err.println("metric: " + cleanByAttribute + ", value: " + attributes.get(cleanByAttribute));
+            System.err.println("Again, the metric values must be numbers");
+            throw e;
+        }
     }
 
     public void deleteValues(List<String> cleanAttributes) {
