@@ -172,7 +172,7 @@ public class Main {
             subjectTrials = new ArrayList<>();
             columnNumber = 1;
             index = 0;
-            String[] arrayRow = row.toArray(String[]::new);
+            String[] arrayRow = row.toArray(new String[0]);
             prefixList.add(arrayRow[0]);
             while (columnNumber < row.size()) {
                 trial = new Trial(
@@ -231,7 +231,7 @@ public class Main {
 
         System.out.println("Enter cleaning threshold (leave blank to use a default of 1500ms):");
         String cleanThresholdStr = in.nextLine();
-        if (!cleanThresholdStr.isBlank()) {
+        if (cleanThresholdStr != null && !cleanThresholdStr.isEmpty()) {
             try {
                 cleanThreshold = Integer.parseInt(cleanThresholdStr);
             } catch (Exception e) {
@@ -284,7 +284,7 @@ public class Main {
     }
 
     private static String parseOptionFromString(String chosenOptionsStr, List<String> options, boolean allowBlank) throws Exception {
-        if (chosenOptionsStr.isBlank()) {
+        if (chosenOptionsStr == null || chosenOptionsStr.isEmpty()) {
             if (allowBlank) return "";
             else {
                 System.out.println("Must enter a value");
@@ -297,8 +297,8 @@ public class Main {
     }
 
     private static List<String> parseOptionsFromString(String chosenOptionsStr, List<String> options, boolean allowBlank) throws Exception {
-        if (chosenOptionsStr.isBlank()) {
-            if (allowBlank) return List.of();
+        if (chosenOptionsStr == null || chosenOptionsStr.isEmpty()) {
+            if (allowBlank) return Collections.emptyList();
             else {
                 System.out.println("Must enter a value");
                 throw new Exception("Must enter a value");
