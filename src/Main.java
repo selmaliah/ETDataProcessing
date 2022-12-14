@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 import static java.lang.Thread.sleep;
 
 public class Main {
+    public static Printer printer = new Printer();
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
@@ -24,6 +25,7 @@ public class Main {
             fileRows = parseInputData(in);
             // Get output directory
             outputFolder = getOutputFolder(in);
+            printer.setScriptName(outputFolder + "/script");
             sleep(1000);
             System.out.println();
 
@@ -32,9 +34,9 @@ public class Main {
             prefixList = new ArrayList<>();
             MultiValuedMap<Pair<Integer, String>, Trial> trialsStimulusMap = new ArrayListValuedHashMap<>();
 
-            System.out.println("Let's start");
+            printer.println("Let's start");
             sleep(1000);
-            System.out.println();
+            printer.println();
 
             parseTrials(fileRows, trialAttributes, subjects, prefixList, trialsStimulusMap);
             cleanDataHandler(in, outputFolder, trialAttributes, subjects, trialsStimulusMap);
@@ -51,75 +53,77 @@ public class Main {
             Parser.writeTypeSummary(subjects.get(0), fileRows.get(0), outputFolder + "/typesSummary.csv");
             sleep(1000);
         } catch (Exception e) {
-            System.out.println("Exit");
+            printer.println("Exit");
             e.printStackTrace();
+            printer.close();
             return;
         }
 
         in.close();
-        System.out.println("All Done!");
-        System.out.println("Good Bye!");
+        printer.println("All Done!");
+        printer.println("Good Bye!");
+        printer.close();
     }
 
     private static void calculateAverageHandler(Scanner in, String outputFolder, List<String> trialAttributes, List<List<Trial>> subjects, List<String> prefixList) throws Exception {
-        System.out.println("Do you want to calculate averages? (Y/N)");
-        String shouldCalcAverageStr = in.nextLine();
+        printer.println("Do you want to calculate averages? (Y/N)");
+        String shouldCalcAverageStr = printer.responseln(in.nextLine());
         boolean shouldCalcAverage = shouldCalcAverageStr.equalsIgnoreCase("y");
         List<String> calcAverageAttributes;
         String calcAverageByAttribute;
         if (shouldCalcAverage){
-            System.out.println("Please select the variable by which averages will be grouped and calculated (leave blank to use a default of 'area_of_interest')");
+            printer.println("Please select the variable by which averages will be grouped and calculated (leave blank to use a default of 'area_of_interest')");
             printOptions(trialAttributes);
-            System.out.println("Enter the field number");
+            printer.println("Enter the field number");
             try{
-                calcAverageByAttribute = parseOptionFromString(in.nextLine(), trialAttributes, true);
+                calcAverageByAttribute = parseOptionFromString(printer.responseln(in.nextLine()), trialAttributes, true);
             } catch (Exception e){
-                System.out.println("Couldn't process the property number. Try again.");
+                printer.println("Couldn't process the property number. Try again.");
                 throw e;
             }
             calcAverageByAttribute = calcAverageByAttribute.isEmpty() ? "area_of_interest" : calcAverageByAttribute;
-            System.out.println("You selected " + calcAverageByAttribute);
+            printer.println("You selected " + calcAverageByAttribute);
             sleep(2000);
-            System.out.println();
+            printer.println();
 
             List<String> trialAttributesToCalcAverage = new ArrayList<>(trialAttributes);
             trialAttributesToCalcAverage.remove(calcAverageByAttribute);
 
-            System.out.println("Please select the metrics to calculate their averages");
+            printer.println("Please select the metrics to calculate their averages");
             printOptions(trialAttributesToCalcAverage);
-            System.out.println("Enter a list of the field numbers you want to clean. For example: 2, 4-6");
+            printer.println("Enter a list of the metric numbers you want to average. For example: 2, 4-6");
             try{
-                calcAverageAttributes = parseOptionsFromString(in.nextLine(), trialAttributesToCalcAverage, false);
+                calcAverageAttributes = parseOptionsFromString(printer.responseln(in.nextLine()), trialAttributesToCalcAverage, false);
             } catch (Exception e){
-                System.out.println("Try again.");
+                printer.println("Try again.");
                 throw e;
             }
-            System.out.println("You selected " + calcAverageAttributes.toString());
+            printer.println("You selected " + calcAverageAttributes.toString());
             sleep(2000);
-            System.out.println();
+            printer.println();
 
             List<String> attributeTypes = Utils.getAttributeTypes(subjects, calcAverageByAttribute);
-            System.out.println("Are there variables that should be skipped and their averages should not be calculated");
+            printer.println("Are there variables that should be skipped and their averages should not be calculated");
             printOptions(attributeTypes);
-            System.out.println("If yes - enter a list of the variable numbers to be skipped. For example: 2, 4-6. If not - press 'enter'");
+            printer.println("If yes - enter a list of the variable numbers to be skipped. For example: 2, 4-6. If not - press 'enter'");
             List<String> skippedAreas;
             try{
-                skippedAreas = parseOptionsFromString(in.nextLine(), attributeTypes, true);
+                skippedAreas = parseOptionsFromString(printer.responseln(in.nextLine()), attributeTypes, true);
             } catch (Exception e){
-                System.out.println("Try again.");
+                printer.println("Try again.");
                 throw e;
             }
-            System.out.println("You selected " + skippedAreas.toString());
+            printer.println("You selected " + skippedAreas.toString());
             sleep(2000);
-            System.out.println();
+            printer.println();
 
             Parser.writeAverage(subjects, calcAverageByAttribute, calcAverageAttributes, outputFolder + "/average.csv", prefixList, skippedAreas);
         }
     }
 
     private static void cleanDataHandler(Scanner in, String outputFolder, List<String> trialAttributes, List<List<Trial>> subjects, MultiValuedMap<Pair<Integer, String>, Trial> trialsStimulusMap) throws Exception {
-        System.out.println("Do you want to clean the data? (Y/N)");
-        String shouldCleanStr = in.nextLine();
+        printer.println("Do you want to clean the data? (Y/N)");
+        String shouldCleanStr = printer.responseln(in.nextLine());
         boolean shouldClean = shouldCleanStr.equalsIgnoreCase("y");
         if (shouldClean){
             cleanData(in, outputFolder, trialAttributes, subjects, trialsStimulusMap);
@@ -127,12 +131,12 @@ public class Main {
     }
 
     private static String getOutputFolder(Scanner in) throws Exception {
-        System.out.println("Enter output folder name:");
-        String outputFolder =  "output/" + in.nextLine();
+        printer.println("Enter output folder name:");
+        String outputFolder =  "output/" + printer.responseln(in.nextLine());
         File theDir = new File(outputFolder);
         if (!theDir.exists()){
             if (!theDir.mkdirs()) {
-                System.out.println("Failed to create the folder " + outputFolder);
+                printer.println("Failed to create the folder " + outputFolder);
                 throw new Exception();
             }
         }
@@ -145,15 +149,15 @@ public class Main {
         try {
             fileRows = Parser.Parse(fileName);
         } catch (Exception e) {
-            System.out.println("Failed to load the file " + fileName);
+            printer.println("Failed to load the file " + fileName);
             throw e;
         }
         return fileRows;
     }
 
     private static String getInputFile(Scanner in) {
-        System.out.println("Enter file name:");
-        String fileName = in.nextLine();
+        printer.println("Enter file name:");
+        String fileName = printer.responseln(in.nextLine());
         fileName = "input/" + (fileName.endsWith(".csv") ? fileName : fileName+ ".csv");
         return fileName;
     }
@@ -200,64 +204,64 @@ public class Main {
         String cleanByAttribute;
         List<String> cleanByAreas;
         int cleanThreshold;
-        System.out.println("Select the metric by which you'll clean the data (metric values must be numbers):");
+        printer.println("Select the metric by which you'll clean the data (metric values must be numbers):");
         printOptions(trialAttributes);
-        System.out.println("Enter the metric number");
+        printer.println("Enter the metric number");
         try{
-            cleanByAttribute = parseOptionFromString(in.nextLine(), trialAttributes, false);
+            cleanByAttribute = parseOptionFromString(printer.responseln(in.nextLine()), trialAttributes, false);
         } catch (Exception e){
-            System.out.println("Couldn't process the property number. Try again.");
+            printer.println("Couldn't process the property number. Try again.");
             throw e;
         }
-        System.out.println("You selected " + cleanByAttribute);
+        printer.println("You selected " + cleanByAttribute);
         sleep(2000);
-        System.out.println();
+        printer.println();
 
         List<String> trialAttributesToClean = new ArrayList<>(trialAttributes);
         trialAttributesToClean.remove(cleanByAttribute);
 
-        System.out.println("Please select the metrics you want to clean:");
+        printer.println("Please select the metrics you want to clean:");
         printOptions(trialAttributesToClean);
-        System.out.println("Enter a list of the metric numbers you want to clean. For example: 2, 4-6");
+        printer.println("Enter a list of the metric numbers you want to clean. For example: 2, 4-6");
         try{
-            cleanAttributes = parseOptionsFromString(in.nextLine(), trialAttributesToClean, false);
+            cleanAttributes = parseOptionsFromString(printer.responseln(in.nextLine()), trialAttributesToClean, false);
         } catch (Exception e){
-            System.out.println("Try again");
+            printer.println("Try again");
             throw e;
         }
-        System.out.println("You selected " + cleanAttributes.toString());
+        printer.println("You selected " + cleanAttributes.toString());
         sleep(2000);
-        System.out.println();
+        printer.println();
 
-        System.out.println("Enter cleaning threshold (leave blank to use a default of 1500ms):");
-        String cleanThresholdStr = in.nextLine();
+        printer.println("Enter cleaning threshold (leave blank to use a default of 1500ms):");
+        String cleanThresholdStr = printer.responseln(in.nextLine());
         if (cleanThresholdStr != null && !cleanThresholdStr.isEmpty()) {
             try {
                 cleanThreshold = Integer.parseInt(cleanThresholdStr);
             } catch (Exception e) {
-                System.out.println("Failed to parse threshold. Threshold is not a number: " + cleanThresholdStr);
+                printer.println("Failed to parse threshold. Threshold is not a number: " + cleanThresholdStr);
                 throw e;
             }
         } else {
             cleanThreshold = 1500;
         }
-        System.out.println("You selected " + cleanThreshold + " as your threshold");
+        printer.println("You selected " + cleanThreshold + " as your threshold");
         sleep(2000);
-        System.out.println();
+        printer.println();
 
         List<String> areaTypes = Utils.getAreaTypesFromSubjects(subjects);
-        System.out.println("select the areas of interest (AOIs) by which you want to clean the data");
+        printer.println("select the areas of interest (AOIs) by which you want to clean the data");
         printOptions(areaTypes);
-        System.out.println("Enter a list of the AOIs numbers you want to clean based on. For example: 2, 4-6");
+        printer.println("Enter a list of the AOIs numbers you want to clean based on. For example: 2, 4-6");
         try{
-            cleanByAreas = parseOptionsFromString(in.nextLine(), areaTypes, false);
+            cleanByAreas = parseOptionsFromString(printer.responseln(in.nextLine()), areaTypes, false);
         } catch (Exception e){
-            System.out.println("Try again");
+            printer.println("Try again");
             throw e;
         }
-        System.out.println("You selected " + cleanByAreas.toString());
+        printer.println("You selected " + cleanByAreas.toString());
         sleep(2000);
-        System.out.println();
+        printer.println();
 
         String finalCleanByAttribute = cleanByAttribute;
         List<String> finalCleanByAreas = cleanByAreas;
@@ -268,7 +272,7 @@ public class Main {
                         .map(trials -> trials.stream().filter(t-> t.isInvalidTrial(finalCleanByAttribute, finalCleanByAreas, finalCleanThreshold)).collect(Collectors.toList()))
                         .filter(item -> !item.isEmpty())
                         .collect(Collectors.toList());
-        System.out.println("Total invalid trials: " + invalidTrials.stream().mapToInt(List::size).sum());
+        printer.println("Total invalid trials: " + invalidTrials.stream().mapToInt(List::size).sum());
 
         cleanAttributes.add(cleanByAttribute);
 
@@ -287,7 +291,7 @@ public class Main {
         if (chosenOptionsStr == null || chosenOptionsStr.isEmpty()) {
             if (allowBlank) return "";
             else {
-                System.out.println("Must enter a value");
+                printer.println("Must enter a value");
                 throw new Exception("Must enter a value");
             }
         }
@@ -300,7 +304,7 @@ public class Main {
         if (chosenOptionsStr == null || chosenOptionsStr.isEmpty()) {
             if (allowBlank) return Collections.emptyList();
             else {
-                System.out.println("Must enter a value");
+                printer.println("Must enter a value");
                 throw new Exception("Must enter a value");
             }
         }
@@ -318,7 +322,7 @@ public class Main {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Unsupported list: " + chosenOptionsStr);
+            printer.println("Unsupported list: " + chosenOptionsStr);
             throw e;
         }
 
@@ -327,7 +331,7 @@ public class Main {
 
     private static void printOptions(List<String> options) {
         for (int i = 1; i <= options.size(); i++) {
-            System.out.println("[" + i + "] " + options.get(i - 1));
+            printer.println("[" + i + "] " + options.get(i - 1));
         }
     }
 }
