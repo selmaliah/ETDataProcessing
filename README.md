@@ -19,6 +19,7 @@ Cleans and organizes exported data from SMI ET
 * The program will ask you for a desired folder. All the output files goes into the folder `output` and a sub-folder as
   you entered. For example, if you entered `ProjectX` as your output folder, then the output files will be in
   `output/ProjectX` folder.
+* One of the output files that will be generated is `script.txt`. This file will include the content from your command line interactions with the software.
 
 ## Installation
 1. Download and install [Java Runtime Environment (JRE)](https://www.java.com/en/download/). Download the file, double click and
